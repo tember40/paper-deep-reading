@@ -43,6 +43,9 @@ test('one user question can connect several papers and several sections without 
   const rendered=paperPage(catalog,catalog.papers[0],papers.get('turing-1950'),questions);
   assert.ok(rendered.includes('저자의 연구 질문과 구분되는 사용자 질문'));
   assert.ok(rendered.includes('href="#learning"'));
+  assert.equal((rendered.match(/<summary>검증 전용 문장<\/summary>/g)||[]).length,1);
+  assert.ok(rendered.includes('class="annotation reader-question"'));
+  assert.ok(rendered.includes('다른 절'));
   assert.ok(homePage(catalog,papers,questions).includes('fixture-second/index.html#reframing'));
 });
 test('bad question targets, ambiguous authorship and duplicate links fail before publication',()=>{
