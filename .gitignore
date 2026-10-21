@@ -1,0 +1,8 @@
+dist/
+.qa/
+.research/
+node_modules/
+.openai/
+*.log
+.DS_Store
+Thumbs.db
