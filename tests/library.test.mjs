@@ -18,6 +18,8 @@ test('an empty question collection renders normally without invented questions',
   assert.ok(!html.includes('question-turing'));
 });
 test('ready papers have sources, exact section locators and honestly declared reading scope',()=>{
+  const home=homePage(library.catalog,library.papers,library.questions);
+  assert.equal((home.match(/class="annotation entry-scope"/g)||[]).length,library.papers.size);
   for (const paper of library.papers.values()) {
     assert.ok(paper.scope.length>40);
     assert.ok(paper.limitations.length>40);
