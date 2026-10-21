@@ -155,3 +155,13 @@ test('an unfinished analysis has no fake reading link',()=>{
     assert.ok(!html.includes(`href="papers/${entry.id}/index.html"`));
   }
 });
+
+test('approved licenses ship with attribution, separate scope and no pending footer',async()=>{
+  if (library.catalog.licenseStatus!=='approved') return;
+  const html=await readFile(path.join(dist,'rights.html'),'utf8');
+  assert.ok(html.includes('글·자체 도식 CC BY 4.0'));
+  assert.ok(html.includes('코드 MIT'));
+  assert.ok(!html.includes('라이선스 확인 중'));
+  assert.ok((await readFile(path.join(dist,'licenses/MIT.txt'),'utf8')).includes('Permission is hereby granted'));
+  assert.ok((await readFile(path.join(dist,'licenses/CONTENT.txt'),'utf8')).includes('https://creativecommons.org/licenses/by/4.0/'));
+});

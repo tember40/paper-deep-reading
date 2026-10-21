@@ -29,6 +29,10 @@ export async function build() {
     outputs.set(`papers/${entry.id}/index.html`,paperPage(catalog,entry,papers.get(entry.id),questions));
   }
   for (const asset of ['styles.css','reader.mjs','favicon.svg','model.mjs','calculations.mjs']) outputs.set(`assets/${asset}`,await readFile(path.join(root,'src',asset)));
+  if (catalog.licenseStatus==='approved') {
+    outputs.set('licenses/MIT.txt',await readFile(path.join(root,'LICENSE-MIT.txt')));
+    outputs.set('licenses/CONTENT.txt',await readFile(path.join(root,'LICENSE-CONTENT.md')));
+  }
   outputs.set('.nojekyll','');
   const obsolete=await writeGenerated(dist,outputs);
   if (obsolete.length) console.log(`Removed obsolete generated pages: ${obsolete.join(', ')}. Rebuild from content to restore.`);

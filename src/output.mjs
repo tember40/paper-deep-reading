@@ -2,7 +2,7 @@ import {lstat,mkdir,readFile,unlink,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 
 const MANIFEST='.generated-files.json';
-const allowedName=name=>name===MANIFEST || name==='.nojekyll' || /^(index|guide|rights)\.html$/.test(name) || /^papers\/[a-z][a-z0-9-]*\/index\.html$/.test(name) || /^assets\/(styles\.css|reader\.mjs|model\.mjs|calculations\.mjs|favicon\.svg)$/.test(name);
+const allowedName=name=>name===MANIFEST || name==='.nojekyll' || /^(index|guide|rights)\.html$/.test(name) || /^licenses\/(MIT|CONTENT)\.txt$/.test(name) || /^papers\/[a-z][a-z0-9-]*\/index\.html$/.test(name) || /^assets\/(styles\.css|reader\.mjs|model\.mjs|calculations\.mjs|favicon\.svg)$/.test(name);
 async function rejectSymlinks(root,target) {
   const relative=path.relative(root,target);
   if (relative.startsWith('..'+path.sep) || relative==='..' || path.isAbsolute(relative)) throw new Error('출력 경로가 생성 폴더를 벗어납니다');

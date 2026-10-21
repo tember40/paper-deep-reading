@@ -3,6 +3,7 @@ import {atLeastOneActive,conservedGain,lenet5Audit,sharedGradient,squaredDistanc
 
 const external = (url, label) => `<a href="${e(httpsUrl(url))}">${e(label)}<span class="external-mark" aria-hidden="true"> ↗</span></a>`;
 const paragraph = text => `<p>${e(text)}</p>`;
+const licenseNotice = prefix => `<span class="license-notice">© 2026 paper-deep-reading contributors · <a href="${prefix}licenses/CONTENT.txt">글·자체 도식 CC BY 4.0</a> · <a href="${prefix}licenses/MIT.txt">코드 MIT</a></span>`;
 export function renderBlock(block) {
   if (block.type==='lenet-parameters') {
     const rows=lenet5Audit();
@@ -38,7 +39,7 @@ function shell(catalog, {title, description, prefix, body, paperId = '', sidebar
 <body${paperId?` data-paper-id="${e(paperId)}"`:''}><a class="skip-link" href="#main">본문으로 건너뛰기</a>
 <header class="masthead"><a class="wordmark" href="${prefix}index.html">${e(catalog.title)}</a><nav aria-label="상단 이동"><a href="${prefix}index.html#library">논문 목록</a><a href="${prefix}guide.html">읽는 방법</a>${sidebar?'<button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc">목차</button>':''}</nav></header>
 ${sidebar?`<div class="reading-layout">${sidebar}${body}</div>`:body}
-<footer class="site-footer"><p>원문은 원문으로, 해설은 해설로.</p><a href="${prefix}rights.html">출처와 이용 안내</a>${catalog.licenseStatus==='pending'?'<span class="license-pending">로컬 초안 · 프로젝트 라이선스 확인 중</span>':''}</footer><div class="toc-shade" hidden></div></body></html>`;
+<footer class="site-footer"><p>원문은 원문으로, 해설은 해설로.</p><a href="${prefix}rights.html">출처와 이용 안내</a>${catalog.licenseStatus==='pending'?'<span class="license-pending">로컬 초안 · 프로젝트 라이선스 확인 중</span>':licenseNotice(prefix)}</footer><div class="toc-shade" hidden></div></body></html>`;
 }
 export function homePage(catalog, papers, questions) {
   const rows = catalog.papers.map((paper,index) => `<li class="paper-entry"><div class="entry-meta"><span>${String(index+1).padStart(2,'0')}</span><span>${paper.year}</span></div><div class="entry-copy"><p class="byline">${e(paper.author)}</p><h2>${paper.status==='ready'?`<a href="papers/${paper.id}/index.html">${e(paper.readingTitle)}</a>`:e(paper.readingTitle)}</h2><p class="original-title" lang="en">${e(paper.title)}</p><p>${e(paper.summary)}</p>${paper.status==='ready'?`<a class="read-link" href="papers/${paper.id}/index.html">분석 읽기 <span aria-hidden="true">→</span></a>`:'<span class="draft-note">분석 준비 중</span>'}</div></li>`).join('');

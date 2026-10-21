@@ -1,7 +1,7 @@
 {
   "title": "논문 깊이 읽기",
   "description": "논문이 세운 주장과 그 근거 사이를 천천히 읽습니다.",
-  "licenseStatus": "pending",
+  "licenseStatus": "approved",
   "papers": [
     {
       "id": "turing-1950",
