@@ -8,6 +8,7 @@ import {localReaderPage} from '../src/local-page.mjs';
 import {pdfAssets} from './pdf-assets.mjs';
 import {parallelPage} from '../src/parallel-page.mjs';
 import {validateParallelReading} from '../src/parallel-model.mjs';
+import {readingAssets} from './reading-assets.mjs';
 
 export const root = fileURLToPath(new URL('../',import.meta.url));
 export async function loadLibrary() {
@@ -30,7 +31,7 @@ export async function loadReadings({includeDraft=false}={}){
     const reading=JSON.parse(await readFile(path.join(root,'content/readings',`${entry.id}.json`),'utf8'));
     if(reading.id!==entry.id)throw new Error('리딩 파일 ID 불일치');
     validateParallelReading(reading,{forPublication:entry.status==='ready'});
-    if(entry.status==='ready'||includeDraft)readings.set(entry.id,{entry,reading});
+    if(entry.status==='ready'||includeDraft)readings.set(entry.id,{entry,reading,figures:await readingAssets(root,reading)});
   }
   return readings;
 }
@@ -50,7 +51,10 @@ export async function build({includeDraft=false}={}) {
   for (const entry of catalog.papers.filter(p=>p.status==='ready')) {
     outputs.set(`papers/${entry.id}/index.html`,paperPage(catalog,entry,papers.get(entry.id),questions,[...readings.values()]));
   }
-  for(const {entry,reading} of readings.values())outputs.set(`readings/${entry.id}/index.html`,parallelPage(entry,reading,{draft:entry.status!=='ready'}));
+  for(const {entry,reading,figures} of readings.values()){
+    outputs.set(`readings/${entry.id}/index.html`,parallelPage(entry,reading,{draft:entry.status!=='ready',figures}));
+    for(const item of figures.values())outputs.set(`assets/papers/${entry.id}/${item.file}`,item.svg);
+  }
   for (const asset of ['styles.css','reader.mjs','favicon.svg','model.mjs','calculations.mjs','parallel-model.mjs','local-reader.mjs','local-reader.css','parallel-reader.mjs','parallel-reader.css']) outputs.set(`assets/${asset}`,await readFile(path.join(root,'src',asset)));
   for(const [name,value] of await pdfAssets(root))outputs.set(name,value);
   if (catalog.licenseStatus==='approved') {

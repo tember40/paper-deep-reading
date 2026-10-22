@@ -1,16 +1,29 @@
 import {escapeHtml as e,httpsUrl} from './model.mjs';
+import {renderReadingMath} from './reading-math.mjs';
 
-const stateLabels={'untranslated':'미번역','machine-draft':'기계 번역 초안','source-checked':'원문 대조 검토 · 사람 검수 아님','human-reviewed':'사람 검토'};
+const stateLabels={'untranslated':'미번역','machine-draft':'기계 번역 초안','source-checked':'원문 대조 검토 · 사람 검수 아님','human-reviewed':'사람 검토','original-only':'영어 원형 유지 · 번역하지 않는 범위'};
 const paragraph=(text,kind,language)=>kind==='equation'?`<pre class="parallel-equation"${language?' lang="en"':''}>${e(text)}</pre>`:`<p${language?' lang="en"':''}>${e(text)}</p>`;
 const link=(url,label)=>`<a href="${e(httpsUrl(url))}">${e(label)} ↗</a>`;
-export function parallelPage(entry,reading,{draft=false}={}){
+function unitBody(unit,side){
+  if(unit.translationState==='original-only')return paragraph(unit.original,unit.kind,true);
+  if(unit.mathKey)return renderReadingMath(unit.mathKey,side==='original'?unit.original:unit.translation);
+  if(unit.kind!=='table')return paragraph(side==='original'?unit.original:unit.translation||'이 단위는 아직 번역되지 않았습니다.',unit.kind,side==='original');
+  return `<div class="parallel-table" tabindex="0" role="region" aria-label="${e(unit.location.label)}"><table><caption>${e(unit.location.label.split(' · ')[0])}</caption><thead><tr>${unit.table.headers.map((cell,i)=>`<th scope="col"${i===0&&!cell?' aria-label="지표와 프로토콜"':''}>${e(cell)}</th>`).join('')}</tr></thead><tbody>${unit.table.rows.map(row=>`<tr>${row.map((cell,i)=>i===0?`<th scope="row">${e(cell)}</th>`:`<td>${e(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+export function parallelPage(entry,reading,{draft=false,figures=new Map()}={}){
   const byId=new Map(reading.units.map(unit=>[unit.id,unit]));
   const locationLabel=unit=>`PDF ${unit.location.pdfPageStart}${unit.location.pdfPageEnd!==unit.location.pdfPageStart?`–${unit.location.pdfPageEnd}`:''}쪽 · 인쇄 ${unit.location.printedPageStart}${unit.location.printedPageEnd?`–${unit.location.printedPageEnd}`:''}`;
   const unitsFor=side=>reading.sections.map(section=>`<section aria-labelledby="${side}-${section.id}"><h2 id="${side}-${section.id}">${e(section.title)}</h2>${section.unitIds.map(id=>{
     const unit=byId.get(id),other=side==='original'?'translation':'original';
+    let graphic='';
+    if(unit.figure){
+      const figure=figures.get(unit.figure);if(!figure)throw new Error('검증한 그래프 자산이 필요합니다');
+      const url=`../../assets/papers/${reading.id}/${figure.file}`;
+      graphic=`<figure class="source-figure"><a href="${url}"><img src="${url}" alt="Figure ${Number(figure.number)} · ${e(figure.scope)}" width="1200" height="${figure.height}" loading="lazy" decoding="async"></a><figcaption>${e(figure.scope)} · <a href="${url}">그래프 확대해서 보기</a> · 원문 CC BY 4.0</figcaption></figure>`;
+    }
     const glossary=(reading.glossary||[]).filter(term=>term.unitIds.includes(id));
-    const notes=side==='translation'?(unit.notes.length?`<details class="reading-notes"><summary>해설 · 분석자가 덧붙인 설명</summary>${unit.notes.map(note=>`<p>${e(note.text)}</p>${(note.analysisLinks||[]).map(target=>`<p><a href="../../papers/${e(target.paperId)}/index.html#${e(target.sectionId)}">${e(target.label)} →</a></p>`).join('')}`).join('')}</details>`:'')+(glossary.length?`<details class="reading-notes glossary"><summary>이 문단의 용어 ${glossary.length}개</summary>${glossary.map(term=>`<div><h3>${e(term.term)}</h3><p>${e(term.definition)}</p><p class="term-occurrences">등장 위치 · ${term.unitIds.map(unitId=>`<a href="#translation-${unitId}" data-goto="${unitId}" data-language="translation">${e(byId.get(unitId).location.label.split(' · ')[0])}</a>`).join(' · ')}</p></div>`).join('')}</details>`:''):'';
-    const text=side==='original'?paragraph(unit.original,unit.kind,true):`<p class="translation-state">${e(stateLabels[unit.translationState])}</p>${paragraph(unit.translation||'이 단위는 아직 번역되지 않았습니다.',unit.kind)}`;
+    const notes=side==='translation'?(unit.notes.length?`<details class="reading-notes"><summary>해설 · 분석자가 덧붙인 설명</summary>${unit.notes.map(note=>`<p>${e(note.text)}</p>${(note.analysisLinks||[]).map(target=>`<p><a href="../../papers/${e(target.paperId)}/index.html#${e(target.sectionId)}">${e(target.label)} →</a></p>`).join('')}`).join('')}</details>`:'')+(glossary.length?`<details class="reading-notes glossary"><summary>이 문단의 용어 ${glossary.length}개</summary>${glossary.map(term=>`<div><h3>${e(term.term)}</h3><p>${e(term.definition)}</p><p class="term-occurrences">등장 위치 · ${term.unitIds.map(unitId=>`<a href="#translation-${unitId}" data-goto="${unitId}" data-language="translation">${e(byId.get(unitId).location.label)}</a>`).join(' · ')}</p></div>`).join('')}</details>`:''):'';
+    const text=(side==='translation'?`<p class="translation-state">${e(stateLabels[unit.translationState])}</p>`:'')+graphic+unitBody(unit,side);
     return `<article id="${side}-${id}" class="parallel-unit ${unit.kind}" data-unit="${id}" tabindex="-1"><header><a href="#${other}-${id}" class="counterpart" data-goto="${id}" data-language="${other}">${side==='original'?'대응 번역':'대응 원문'} ↔</a><span class="unit-page">${e(locationLabel(unit))}</span></header>${text}<details class="source-location"><summary>원문 위치 확인</summary><p>${e(unit.location.label)} · ${unit.location.precision==='paragraph'?'문단별 대조 재배치':'페이지 기준 위치'}. PDF 지면 위 문단 좌표를 제공하는 기능은 아닙니다.</p>${link(`${reading.source.url}#page=${unit.location.pdfPageStart}`,`공식 PDF ${unit.location.pdfPageStart}쪽 열기`)}</details>${notes}</article>`;
   }).join('')}</section>`).join('');
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'"><title>${e(entry.readingTitle)} · 원문·번역 대조</title><link rel="icon" href="../../assets/favicon.svg"><link rel="stylesheet" href="../../assets/styles.css"><link rel="stylesheet" href="../../assets/parallel-reader.css"><script type="module" src="../../assets/parallel-reader.mjs"></script></head>

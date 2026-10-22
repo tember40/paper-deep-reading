@@ -19,12 +19,14 @@ node scripts/preview.mjs
 
 pnpm이 없다면 npm이 제공되는 Node 설치에서 `npx --yes pnpm@11.25.0 install --frozen-lockfile --no-optional`로 프로젝트 의존성만 설치할 수도 있습니다. 최초 설치에는 인터넷이 필요하고 실행·열람에 Python이나 ML 환경은 필요하지 않습니다.
 
-## 원문·번역 리딩 개발 상태
+## 원문·번역 대조 읽기
 
 - 승인된 시범: Azulay·Weiss(2019), JMLR 출판판. 첫 쪽의 CC BY 4.0 고지를 확인했습니다.
-- 목표 범위: Abstract부터 Discussion까지 본문, 원형 참고문헌. 부록과 외부 사진은 제외합니다.
-- **현재는 Abstract·Introduction·Figure 1 캡션 7개 대응 단위의 로컬 시범**입니다. 전체 번역이나 공개 배포 완료가 아닙니다.
-- 시범 확인: `node scripts/build.mjs --draft-reading` 후 `/readings/azulay-weiss-2019/index.html`을 엽니다. 일반 빌드는 `draft`를 내보내지 않으며 일반 빌드를 다시 하면 이전 시범 생성 페이지도 정리됩니다.
+- 제공 범위: Abstract부터 §6 Discussion까지 본문(PDF 1–20쪽), 수식, 표 2개, Figure 1–11 캡션. 감사 표기와 참고문헌 37항목(PDF 20–23쪽)은 영어 원형입니다. 부록과 외부 사진, PDF 파일 자체는 배포하지 않습니다.
+- 80개 대응 단위 중 번역 대상 75개는 **AI 작성·원문 대조본**이며 사람 검수를 받은 번역이 아닙니다. 나머지 5개는 감사/참고문헌 원형 유지 단위입니다. 원문의 주장 강도와 조건을 확인하며 읽어 주세요.
+- 일반 빌드 후 메인의 ‘원문과 나란히 읽기’ 또는 `/readings/azulay-weiss-2019/index.html`로 들어갑니다. PC는 두 열, 모바일은 같은 문단의 원문/번역 전환입니다. 문단 연결은 끌 수 있습니다. 공식 PDF의 정확한 위치, 별도 해설·용어, 기존 LeNet 분석 왕복 링크를 제공합니다.
+- 그래프 9개는 원본 벡터 발췌이며, 사진을 화면에서 숨기는 대신 파일에서 래스터 데이터와 참조를 제거했습니다. 그림별 발췌 범위·확대 링크·귀속이 표시됩니다. 그래프 값을 추정해 다시 그리지 않았습니다.
+- 새 자료의 `draft`는 일반 빌드에서 제외됩니다. 미완성 자료를 로컬 검토할 때만 `node scripts/build.mjs --draft-reading`을 사용하고 그 결과를 배포하지 마세요.
 - 개인 파일: `/local-reader/index.html`. PDF와 .txt/.json 번역을 브라우저 메모리에서만 열며 업로드·자동 번역·영구 저장·OCR은 없습니다. `.json`은 선택한 PDF의 SHA-256과 총쪽수가 일치해야 연결됩니다. 매번 파일을 다시 선택합니다.
 - 편집 형식·권리 게이트·검토 상태는 [READING-EDITING.md](READING-EDITING.md), 조사 근거는 [READING-RIGHTS.md](READING-RIGHTS.md)를 참조합니다.
 
@@ -39,7 +41,7 @@ pnpm이 없다면 npm이 제공되는 Node 설치에서 `npx --yes pnpm@11.25.0 
 - `content/questions.json`: 사용자가 승인한 ‘기계는 생각하는가?’ 한 개와 관련 절. 추가 질문은 직접 작성
 - `content/readings.json`, `content/readings/<id>.json`: 개별 권리·판본·안정적인 문단 ID·원문/번역/별도 해설
 - `src/`: 템플릿·스타일·읽기 기능·검증
-- `scripts/`: 정적 빌드, 고정 PDF 표시 자산 복사, loopback 미리보기
+- `scripts/`: 정적 빌드, 고정 PDF 표시 자산 복사, 검증된 그래프 발췌 도구, loopback 미리보기
 - `tests/`: 데이터·질문 연결·경로·배포 자산 검사
 - `PROGRESS.md`: 실제 조사·구현·검증과 미완료 기록
 

@@ -33,7 +33,7 @@ test('the actual introduction contains both page-crossing paragraphs and an hone
   assert.ok(!draft.reading.units.some(unit=>unit.translationState==='human-reviewed'));
 });
 test('each actual paragraph has a pair of stable fragments, a source page and separated analysis',()=>{
-  const html=parallelPage(draft.entry,draft.reading,{draft:true});
+  const html=parallelPage(draft.entry,draft.reading,{draft:true,figures:draft.figures});
   const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(match=>match[1]);
   assert.equal(ids.length,new Set(ids).size);
   for(const unit of draft.reading.units){
@@ -43,7 +43,12 @@ test('each actual paragraph has a pair of stable fragments, a source page and se
   assert.ok(html.includes('사람 검수를 받은 번역이 아닙니다'));
   assert.ok(html.includes('해설 · 분석자가 덧붙인 설명'));
   assert.ok(html.includes('lecun-1998/index.html#architectural-assumptions'));
-  assert.ok(!/<iframe|<img|<object/.test(html));
+  assert.ok(!/<iframe|<object/.test(html));
+  assert.equal((html.match(/<img /g)||[]).length,18);
+  for(const [file,figure] of draft.figures){
+    assert.ok(!/<image\b|data:|<script|<foreignObject/i.test(figure.svg));
+    assert.ok(html.includes(`assets/papers/azulay-weiss-2019/${file}`));
+  }
 });
 test('local files bind to exact bytes and page count, never a similar filename',()=>{
   const doc=draft.reading,binding={sha256:doc.source.pdfSha256,pageCount:25};

@@ -2,7 +2,16 @@ import {lstat,mkdir,readFile,unlink,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 
 const MANIFEST='.generated-files.json';
-const allowedName=name=>name===MANIFEST || name==='.nojekyll' || name==='local-reader/index.html' || name==='assets/vendor/pdfjs/font-source/liberation-fonts-1.07.4.tar.gz' || /^(index|guide|rights)\.html$/.test(name) || /^licenses\/(MIT|CONTENT|THIRD-PARTY)\.txt$/.test(name) || /^(papers|readings)\/[a-z][a-z0-9-]*\/index\.html$/.test(name) || /^assets\/(styles\.css|reader\.mjs|model\.mjs|calculations\.mjs|favicon\.svg|parallel-model\.mjs|local-reader\.(mjs|css)|parallel-reader\.(mjs|css))$/.test(name) || /^assets\/vendor\/pdfjs\/(LICENSE\.txt|build\/pdf(?:\.worker)?\.min\.mjs|web\/pdf_viewer\.css|(cmaps|standard_fonts|wasm|iccs)\/[A-Za-z0-9][A-Za-z0-9_.-]*)$/.test(name)&&!name.includes('/quickjs-');
+const allowedName=name=>[
+  name===MANIFEST,name==='.nojekyll',name==='local-reader/index.html',
+  name==='assets/vendor/pdfjs/font-source/liberation-fonts-1.07.4.tar.gz',
+  /^(index|guide|rights)\.html$/.test(name),
+  /^licenses\/(MIT|CONTENT|THIRD-PARTY)\.txt$/.test(name),
+  /^(papers|readings)\/[a-z][a-z0-9-]*\/index\.html$/.test(name),
+  /^assets\/(styles\.css|reader\.mjs|model\.mjs|calculations\.mjs|favicon\.svg|parallel-model\.mjs|local-reader\.(mjs|css)|parallel-reader\.(mjs|css))$/.test(name),
+  /^assets\/papers\/azulay-weiss-2019\/figure-(01|02|04|05|06|08|09|10|11)\.svg$/.test(name),
+  /^assets\/vendor\/pdfjs\/(LICENSE\.txt|build\/pdf(?:\.worker)?\.min\.mjs|web\/pdf_viewer\.css|(cmaps|standard_fonts|wasm|iccs)\/[A-Za-z0-9][A-Za-z0-9_.-]*)$/.test(name)&&!name.includes('/quickjs-')
+].some(Boolean);
 async function rejectSymlinks(root,target) {
   const relative=path.relative(root,target);
   if (relative.startsWith('..'+path.sep) || relative==='..' || path.isAbsolute(relative)) throw new Error('출력 경로가 생성 폴더를 벗어납니다');

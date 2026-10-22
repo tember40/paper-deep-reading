@@ -57,12 +57,18 @@ for(const a of document.querySelectorAll('[data-goto]'))a.addEventListener('clic
 });
 for(const button of document.querySelectorAll('[data-language-button]'))button.addEventListener('click',()=>{
   selectLanguage(button.dataset.languageButton);align(button.dataset.languageButton,activeId);
+  document.querySelector('.parallel-toolbar').scrollIntoView({block:'start'});
 });
 sync.addEventListener('change',()=>{if(sync.checked){align('original',activeId);align('translation',activeId);}});
 function hashTarget(){
   let hash;try{hash=decodeURIComponent(location.hash.slice(1));}catch{return false;}
   for(const language of ['original','translation'])if(hash.startsWith(`${language}-`)){
-    const id=hash.slice(language.length+1);if(ids.includes(id)){go(id,{language,hash:false});return true;}
+    const id=hash.slice(language.length+1);if(ids.includes(id)){
+      go(id,{language,hash:false});
+      // The browser's native fragment scroll can put the first formula line under the sticky tools.
+      document.querySelector('.parallel-toolbar').scrollIntoView({block:'start'});
+      return true;
+    }
   }
   return false;
 }
@@ -72,3 +78,12 @@ if(target){resume.hidden=false;resume.addEventListener('click',()=>{go(target);r
 if(location.hash)requestAnimationFrame(()=>{hashTarget();});
 addEventListener('hashchange',hashTarget);
 mobile.addEventListener('change',()=>{align('original',activeId);align('translation',activeId);});
+// Column width changes reflow long paragraphs even without crossing the mobile breakpoint.
+// Keep the checked pairing at the same unit; never ratio-sync independently read columns.
+let resizeFrame=0;
+addEventListener('resize',()=>{
+  if(!sync.checked&&!mobile.matches)return;
+  const id=activeId;
+  cancelAnimationFrame(resizeFrame);
+  resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;align('original',id);align('translation',id);setActive(id);});
+});

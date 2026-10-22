@@ -22,7 +22,15 @@
 - `notes`: `author: analyst`와 별도 설명. `analysisLinks`는 기존 분석의 실제 paperId/sectionId와 설명을 가지며 빌드가 대상 존재를 확인합니다.
 - `glossary`: 실제 필요한 단어·별도 정의·등장 `unitIds`. 번역과 구분하며 존재하지 않는 위치·중복 ID를 거부합니다.
 
-검토 상태는 `untranslated` → `machine-draft` → `source-checked`입니다. 마지막도 AI 원문 대조일 수 있으며 사람 검수를 뜻하지 않습니다. 실제 사람 검토만 `human-reviewed`와 `review: {kind: human, name, date}`를 기록합니다. 가상의 검토자·검토일을 만들지 마세요.
+검토 상태는 `untranslated` → `machine-draft` → `source-checked`입니다. 마지막도 AI 원문 대조일 수 있으며 사람 검수를 뜻하지 않습니다. 실제 사람 검토만 `human-reviewed`와 `review: {kind: human, name, date}`를 기록합니다. 가상의 검토자·검토일을 만들지 마세요. `original-only`는 번역하지 않기로 한 `reference`·`acknowledgment`에만 허용하며 번역 필드를 넣지 않습니다. 본문을 이 상태로 바꿔 공개 게이트를 우회하지 마세요.
+
+## 표·수식·그래프 편집
+
+- `kind: table`에는 `table.headers/rows`와 영어 원형의 수치 텍스트를 둡니다. 표시 표와 양쪽 텍스트가 다르면 검사가 실패합니다. 원문 Table 2의 bias 표기와 숫자 차이는 값을 고치지 않고 별도 주석으로 남겼습니다. 이것을 자체 재현 결과라고 부르지 마세요.
+- 두 긴 수식은 `mathKey`로 `src/reading-math.mjs`의 정적 MathML과 연결됩니다. 합 기호·첨자·식 번호를 직접 지면과 대조했습니다. 원본 텍스트와 렌더 정의가 다르면 빌드가 실패합니다. 임의 HTML·TeX 실행을 허용하지 않으며 새 식은 정의와 검사도 함께 추가하세요. 짧은 본문 수식은 Unicode 원형을 유지합니다.
+- `kind: caption`의 `figure`는 검증된 SVG만 지정합니다. `src/figures/azulay-weiss-2019/manifest.json`에 정확한 PDF 해시·원본 쪽·발췌 좌표(PDF point)·제외 범위·자산 해시를 기록합니다. `scripts/reading-assets.mjs`가 빌드 전에 무결성과 사진 데이터·활성 콘텐츠·외부 참조의 부재를 검사합니다.
+- 선택적 재생성: Poppler가 있는 편집 환경에서 `node scripts/extract-reading-figures.mjs <검토한 19-519.pdf 경로>`를 실행합니다. 승인 PDF의 SHA-256이 다르면 거부합니다. 모든 래스터 요소/참조 제거 후 viewBox를 발췌하며 그래프 수치는 변경하지 않습니다. 그래프 5의 축 이름, 그래프 9의 위쪽 예시 제외 등 실제 지면과 다시 비교해야 합니다. 자동 추출 성공이 시각 검토나 권리 확인을 대신하지 않습니다.
+- 일반 설치·빌드는 Poppler/Python/원본 PDF가 필요하지 않습니다. 검증한 SVG가 소스에 포함되어 있습니다. 원본·원시 전체 SVG·테스트 입력은 Git/배포에 넣지 않습니다.
 
 ## 개인 파일 양식
 

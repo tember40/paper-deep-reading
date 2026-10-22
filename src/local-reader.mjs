@@ -6,7 +6,7 @@ const el=(tag,text,className)=>{const node=document.createElement(tag);if(text!=
 const fileStatus=$('file-status'),translationStatus=$('translation-status');
 let pdf,loadingTask,renderTask,textLayer,pdfjs,sha256='',pageNumber=1,reading,epoch=0,renderEpoch=0,translationEpoch=0;
 let activeId='',syncLock=false,scrollFrame=0;
-const stateLabels={'untranslated':'미번역','machine-draft':'기계 번역 초안','source-checked':'원문 대조 검토 · 사람 검수 아님','human-reviewed':'사람 검토 기록 있음'};
+const stateLabels={'untranslated':'미번역','machine-draft':'기계 번역 초안','source-checked':'원문 대조 검토 · 사람 검수 아님','human-reviewed':'사람 검토 기록 있음','original-only':'영어 원형 유지 · 번역하지 않는 범위'};
 const controls=['translation-file','template','page-number','zoom'];
 
 async function cancelDocument(){
@@ -90,9 +90,10 @@ $('pdf-file').addEventListener('change',async event=>{
   sha256='';pageNumber=1;$('page-number').value='1';$('page-total').textContent='/ 0';
   $('pdf-canvas').width=0;$('pdf-canvas').height=0;$('pdf-text').replaceChildren();
   controls.forEach(id=>$(id).disabled=true);$('pdf-page').hidden=true;
+  $('pdf-pane').querySelector('.pane-empty').hidden=false;
   $('previous-page').disabled=true;$('next-page').disabled=true;
   $('file-fingerprint').textContent='선택한 파일을 확인하는 중입니다.';
-  if(!file.size||file.size>50_000_000){fileStatus.textContent='PDF는 비어 있지 않은 50MB 이하 파일만 열 수 있습니다.';return;}
+  if(!file.size||file.size>50_000_000){fileStatus.textContent='PDF는 비어 있지 않은 50MB 이하 파일만 열 수 있습니다.';$('file-fingerprint').textContent='유효한 PDF가 선택되지 않았습니다.';return;}
   fileStatus.textContent='PDF를 이 브라우저 안에서 읽는 중입니다…';
   try{
     const bytes=new Uint8Array(await file.arrayBuffer());
@@ -129,7 +130,8 @@ function renderTranslation(doc){
       const unit=byId.get(id),article=el('article',undefined,'translation-unit');article.id=`local-${id}`;article.dataset.unit=id;
       const loc=unit.location;
       const button=el('button',`원문 PDF ${loc.pdfPageStart}${loc.pdfPageEnd!==loc.pdfPageStart?`–${loc.pdfPageEnd}`:''}쪽 · 인쇄 ${loc.printedPageStart} · 페이지 기준 이동`,'unit-location');button.type='button';button.addEventListener('click',()=>goUnit(unit));
-      article.append(button,el('p',`${stateLabels[unit.translationState]} · ${loc.label}`,'unit-state'),el(unit.kind==='equation'?'pre':'p',unit.translation||'이 단위는 아직 번역되지 않았습니다.','unit-translation'));
+      const content=unit.translationState==='original-only'?unit.original:unit.translation||'이 단위는 아직 번역되지 않았습니다.';
+      article.append(button,el('p',`${stateLabels[unit.translationState]} · ${loc.label}`,'unit-state'),el(unit.kind==='equation'?'pre':'p',content,'unit-translation'));
       const original=el('details'),summary=el('summary','대응 원문 텍스트');original.append(summary,el('p',unit.original));article.append(original);
       if(unit.notes.length){const notes=el('details');notes.append(el('summary','별도 해설 · 분석자'));for(const note of unit.notes)notes.append(el('p',note.text));article.append(notes);}
       pane.append(article);
@@ -140,7 +142,7 @@ function goUnit(unit){activate(unit,{scroll:true});renderPage(unit.location.pdfP
 $('translation-file').addEventListener('change',async event=>{
   const file=event.target.files[0];if(!file||!pdf)return;
   const current=++translationEpoch,documentEpoch=epoch;
-  if(!file.size||file.size>5_000_000){translationStatus.textContent='번역은 비어 있지 않은 5MB 이하 .txt/.json 파일이어야 합니다.';return;}
+  if(!file.size||file.size>5_000_000){clearTranslation();translationStatus.textContent='번역은 비어 있지 않은 5MB 이하 .txt/.json 파일이어야 합니다.';return;}
   try{
     const text=(await file.text()).replace(/^\uFEFF/,'');if(current!==translationEpoch||documentEpoch!==epoch)return;
     if(file.name.toLowerCase().endsWith('.json')){

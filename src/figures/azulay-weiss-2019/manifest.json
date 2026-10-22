@@ -1,0 +1,146 @@
+{
+  "paperId": "azulay-weiss-2019",
+  "sourcePdfSha256": "a21121537d7743f4290ee94b143282babb17ddc9168163dbdbb19aebe5545249",
+  "sourceUrl": "https://jmlr.org/papers/volume20/19-519/19-519.pdf",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "© 2019 Aharon Azulay, Yair Weiss. JMLR 20(184):1–25. CC BY 4.0.",
+  "hashNormalization": "LF",
+  "method": "pdftocairo SVG, remove ALL raster image elements and references, crop viewBox; paths/numbers unchanged. Crops still require visual review.",
+  "assets": [
+    {
+      "number": "01",
+      "page": 2,
+      "box": [
+        365,
+        85,
+        155,
+        350
+      ],
+      "scope": "오른쪽 예측 그래프만, 외부 사진 제외",
+      "file": "figure-01.svg",
+      "sha256": "301b8e1eb3f8f8d2a8c416e337866ff8115441a5b873b8a3d13a2e0ef0642ff1",
+      "bytes": 270693,
+      "removedRasterElements": 6
+    },
+    {
+      "number": "02",
+      "page": 4,
+      "box": [
+        85,
+        170,
+        280,
+        330
+      ],
+      "scope": "왼쪽 민감도 그래프만, 오른쪽 사진 제외",
+      "file": "figure-02.svg",
+      "sha256": "3a5d7c331c689c6aeea5ce67a7c374e8a6fb1be8d076d2131b7c77ae5ac5ff6a",
+      "bytes": 356575,
+      "removedRasterElements": 8
+    },
+    {
+      "number": "04",
+      "page": 10,
+      "box": [
+        130,
+        85,
+        360,
+        125
+      ],
+      "scope": "전체 그래프",
+      "file": "figure-04.svg",
+      "sha256": "6070a54b4e47bf790fbe82a5ce0478d17ad5cc289fdd119f1c63f4276048d1e2",
+      "bytes": 347957,
+      "removedRasterElements": 0
+    },
+    {
+      "number": "05",
+      "page": 12,
+      "box": [
+        210,
+        140,
+        300,
+        80
+      ],
+      "scope": "위치·거리·검정 그래프만, 사진 제외",
+      "file": "figure-05.svg",
+      "sha256": "fff3c8d156986ed1b6f38c8593d63fb4aca786debc38c053fa726267dd25c34a",
+      "bytes": 1318206,
+      "removedRasterElements": 4
+    },
+    {
+      "number": "06",
+      "page": 12,
+      "box": [
+        160,
+        420,
+        360,
+        170
+      ],
+      "scope": "크기별 민감도 그래프만, 사진 제외",
+      "file": "figure-06.svg",
+      "sha256": "fe1f599538312738f1d9af95f3e483a6976203010e764357d9785160db00c605",
+      "bytes": 1318204,
+      "removedRasterElements": 4
+    },
+    {
+      "number": "08",
+      "page": 14,
+      "box": [
+        130,
+        380,
+        360,
+        140
+      ],
+      "scope": "아래쪽 민감도 그래프만, 위쪽 사진 제외",
+      "file": "figure-08.svg",
+      "sha256": "f912660dd5422a5739f05fb48968adf1a60a8537415dc008c09d54217b7165df",
+      "bytes": 210204,
+      "removedRasterElements": 1
+    },
+    {
+      "number": "09",
+      "page": 18,
+      "box": [
+        130,
+        190,
+        350,
+        345
+      ],
+      "scope": "가운데·아래 민감도 그래프만, 위쪽 예시·사진 제외",
+      "file": "figure-09.svg",
+      "sha256": "069899c2af6430245ff66ae36d2f875bbefc0bfe48598576228e0079ad02b50a",
+      "bytes": 469710,
+      "removedRasterElements": 4
+    },
+    {
+      "number": "10",
+      "page": 19,
+      "box": [
+        112,
+        125,
+        390,
+        125
+      ],
+      "scope": "전체 그래프",
+      "file": "figure-10.svg",
+      "sha256": "b42d9671efcc1e4a2235006c809617bc110f6278931e9cfae8b6437d01b3ddb3",
+      "bytes": 827928,
+      "removedRasterElements": 0
+    },
+    {
+      "number": "11",
+      "page": 19,
+      "box": [
+        100,
+        470,
+        410,
+        125
+      ],
+      "scope": "전체 그래프",
+      "file": "figure-11.svg",
+      "sha256": "3212ee2c3d112a8cde74c7a536d1e74d6768b28f0953ee7188bdcdce06674ee3",
+      "bytes": 827928,
+      "removedRasterElements": 0
+    }
+  ]
+}

@@ -7,7 +7,7 @@ const requireText=(value,label)=>{
 const requireId=(value,label)=>{
   if(typeof value!=='string'||!ID.test(value)) throw new Error(`${label}: ID 오류`);
 };
-export const TRANSLATION_STATES=Object.freeze(['untranslated','machine-draft','source-checked','human-reviewed']);
+export const TRANSLATION_STATES=Object.freeze(['untranslated','machine-draft','source-checked','human-reviewed','original-only']);
 
 export function validateParallelReading(reading,{forPublication=false,localFile=false}={}){
   if(!reading||typeof reading!=='object'||Array.isArray(reading))throw new Error('대응 번역은 JSON 객체여야 합니다');
@@ -42,10 +42,21 @@ export function validateParallelReading(reading,{forPublication=false,localFile=
     requireId(unit.id,'문단');
     if(actual.has(unit.id)||!expected.has(unit.id)) throw new Error('중복 또는 목차에 없는 문단');
     actual.add(unit.id);
-    if(!['paragraph','equation','caption','footnote'].includes(unit.kind)) throw new Error('지원하지 않는 대응 유형');
+    if(!['paragraph','equation','caption','footnote','table','reference','acknowledgment'].includes(unit.kind)) throw new Error('지원하지 않는 대응 유형');
     requireText(unit.original,'원문');
     if(!TRANSLATION_STATES.includes(unit.translationState)) throw new Error('번역 검토 상태 오류');
-    if(unit.translationState!=='untranslated') requireText(unit.translation,'번역');
+    if(!['untranslated','original-only'].includes(unit.translationState)) requireText(unit.translation,'번역');
+    if(unit.translationState==='original-only'&&(!['reference','acknowledgment'].includes(unit.kind)||unit.translation))throw new Error('원형 유지 상태는 번역을 넣지 않은 참고문헌·감사 표기에만 사용합니다');
+    if(unit.mathKey!==undefined){if(unit.kind!=='equation')throw new Error('수식 렌더링은 수식 단위에만 지정합니다');requireId(unit.mathKey,'수식 렌더링');}
+    if(unit.figure!==undefined&&(unit.kind!=='caption'||!/^figure-\d{2}\.svg$/.test(unit.figure)))throw new Error('그래프는 검증한 SVG와 캡션에 연결합니다');
+    if(unit.kind==='table'){
+      const table=unit.table;
+      if(!Array.isArray(table?.headers)||table.headers.length<2||table.headers.some(cell=>typeof cell!=='string')||!Array.isArray(table.rows)||!table.rows.length)throw new Error('대조 표 머리글/행 오류');
+      for(const row of table.rows)if(!Array.isArray(row)||row.length!==table.headers.length||row.some(cell=>typeof cell!=='string')||!row[0].trim())throw new Error('대조 표 셀 수/형식 오류');
+      const canonical=[table.headers.filter(Boolean).join(' | '),...table.rows.map(row=>row.filter(Boolean).join(' | '))].join('\n');
+      const normalize=text=>text.replace(/\s+/g,' ').trim();
+      if(normalize(unit.original)!==normalize(canonical)||normalize(unit.translation||'')!==normalize(canonical))throw new Error('대조 표의 텍스트와 표시 수치가 다릅니다');
+    }
     if(unit.translationState==='human-reviewed'){
       if(unit.review?.kind!=='human') throw new Error('사람 검토 표시에는 실제 사람 검토 기록이 필요합니다');
       requireText(unit.review.name,'검토자');requireText(unit.review.date,'검토일');
