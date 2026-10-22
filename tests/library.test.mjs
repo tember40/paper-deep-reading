@@ -141,7 +141,8 @@ test('every generated local link and fragment exists; links work under a project
 });
 test('publication output contains no PDFs, research copies, remote fonts, embeds or trackers',async()=>{
   for (const file of generated) {
-    assert.ok(!/\.(pdf|djvu|png|jpe?g|woff2?|ttf)$/i.test(file));
+    const supportFont=/[/\\]assets[/\\]vendor[/\\]pdfjs[/\\]standard_fonts[/\\][A-Za-z0-9_.-]+\.ttf$/.test(file);
+    assert.ok(supportFont||!/\.(pdf|djvu|png|jpe?g|woff2?|ttf)$/i.test(file));
     if (file.endsWith('.html')) {
       const html=await readFile(file,'utf8');
       assert.ok(!/<(?:iframe|embed|object)\b/i.test(html));

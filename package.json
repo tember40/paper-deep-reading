@@ -7,5 +7,9 @@
     "test": "node --test",
     "preview": "node scripts/preview.mjs"
   },
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=22.13.0" },
+  "packageManager": "pnpm@11.25.0",
+  "devDependencies": {
+    "pdfjs-dist": "6.4.299"
+  }
 }

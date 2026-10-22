@@ -6,15 +6,15 @@
 
 1. 별도 로컬 프로젝트에서 `git rev-parse --show-toplevel`로 작업 대상 경로, `git remote -v`로 **새 원격**을 확인합니다. 기존 ML 저장소 주소가 나오면 중단합니다.
 2. 라이선스 선택을 반영하고 RIGHTS.md 및 이용 안내를 대조합니다. 질문은 사용자 작성분만 넣습니다.
-3. `node --test`와 `node scripts/build.mjs`를 실행합니다. `dist/`에 원문이나 `.qa` 자료가 들어 있지 않은지 확인합니다.
+3. `pnpm install --frozen-lockfile --no-optional` 후 `node --test`와 `node scripts/build.mjs`를 실행합니다. 배포 빌드에 `--draft-reading`을 사용하지 않습니다. 허가된 완성 대조 본문 외의 원문·임시 연구 PDF·개인 파일·`.qa`가 없는지 확인합니다.
 4. `node scripts/preview.mjs`로 PC·모바일 링크, 목차, 직접 절 링크, 표와 주석을 확인합니다. 단위 검사만으로 공개 검증을 대신하지 않습니다.
 5. 소스·문서·검사 파일만 검토해 커밋합니다. 원문 입력·검증 임시 파일·개인 자료·민감 정보·`dist/`를 무차별 추가하지 않습니다.
 
 ## GitHub Pages
 
-현재 구조는 빌드 결과 `dist/`를 Pages artifact로 배포하는 방식에 적합합니다. 승인된 **새 저장소**의 Settings → Pages에서 GitHub Actions를 선택하고, 저장소의 기본 브랜치에 맞는 워크플로를 작성합니다. 순서는 체크아웃 → Node20 이상 준비 → 검사 → 빌드 → configure-pages → upload-pages-artifact(`path: dist`) → deploy-pages입니다. 배포 작업에 필요한 pages:write·id-token:write와 github-pages 환경을 설정합니다. 처음에는 수동 실행으로 검증한 뒤 자동 실행 여부를 결정하세요.
+현재 구조는 빌드 결과 `dist/`를 Pages artifact로 배포합니다. 순서는 체크아웃 → Node22.13 이상 → pnpm11.25.0 → 잠금 파일로 의존성 설치(선택 네이티브 모듈 제외) → 검사 → 일반 빌드 → upload-pages-artifact(`path: dist`) → 별도 작업의 configure-pages / deploy-pages입니다. deploy 작업에만 pages:write·id-token:write를 주며 기본 main push와 수동 실행을 지원합니다.
 
-실제 워크플로는 `.github/workflows/pages.yml`입니다. Node22에서 외부 패키지 설치 없이 검사·빌드하고 별도 deploy 작업에만 Pages/OIDC 쓰기 권한을 줍니다. 공식 action 소스의 정확한 커밋을 고정했습니다. 업데이트 시 [GitHub 공식 custom workflow 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)를 대조합니다.
+실제 워크플로는 `.github/workflows/pages.yml`입니다. PDF.js의 버전과 배포 무결성 값은 package.json·pnpm-lock.yaml로 고정합니다. 공식 action 소스의 정확한 커밋도 고정했습니다. 업데이트 시 [GitHub 공식 custom workflow 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)를 대조합니다.
 
 ## 이후 수정해서 올리기
 

@@ -6,7 +6,7 @@ import {root} from './build.mjs';
 const port = Number(process.env.PORT || 8780);
 if (!Number.isInteger(port) || port<1024 || port>65535) throw new Error('PORT는1024~65535 정수여야 합니다');
 const dist = path.join(root,'dist');
-const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.txt':'text/plain; charset=utf-8'};
+const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.wasm':'application/wasm','.ttf':'font/ttf','.svg':'image/svg+xml','.txt':'text/plain; charset=utf-8'};
 const server = http.createServer(async (request,response)=>{
   if (!['GET','HEAD'].includes(request.method)) {response.writeHead(405);response.end();return;}
   try {

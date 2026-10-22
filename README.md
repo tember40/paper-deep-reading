@@ -2,19 +2,31 @@
 
 논문 원문을 대체하지 않고 주장·가정·근거·한계를 함께 읽는 정적 e북형 사이트입니다. 기존 Backbone Lab과 분리된 프로젝트이며 ML 패키지·데이터셋·DB·외부 API를 사용하지 않습니다.
 
-사용자가 확정한 로컬 프로젝트 위치는 `C:\Users\ryusy\Desktop\paper-deep-reading`입니다. 코드 MIT·자체 글/도식 CC BY 4.0과 초기 질문 한 개를 승인했습니다. 공개 저장소는 [tember40/paper-deep-reading](https://github.com/tember40/paper-deep-reading)이며 GitHub Pages 배포도 사용자에게 승인받았습니다. 원문 PDF·전문·전체 번역·논문 그림은 배포하지 않습니다.
+사용자가 확정한 로컬 프로젝트 위치는 `C:\Users\ryusy\Desktop\paper-deep-reading`입니다. 코드 MIT·자체 글/도식 CC BY 4.0과 초기 질문 한 개를 승인했습니다. 공개 저장소는 [tember40/paper-deep-reading](https://github.com/tember40/paper-deep-reading)이며 GitHub Pages 배포도 사용자에게 승인받았습니다. 기존 세 논문은 독립 분석을 유지합니다. 추가 원문·번역 대조는 권리와 제공 범위를 확인한 논문에만 적용하며 PDF 파일·외부 사진은 배포하지 않습니다.
 
 ## 실행
 
-Node.js 20 이상이 필요하며 npm 패키지 설치는 필요 없습니다. 프로젝트 폴더에서 실행합니다.
+Node.js 22.13 이상과 pnpm 11.25.0이 필요합니다. PDF.js 6.4.299를 고정 버전으로 설치합니다. 선택적인 네이티브 canvas 모듈은 사용하지 않습니다. 프로젝트 폴더에서 실행합니다.
 
 ```text
-node scripts/build.mjs
+pnpm install --frozen-lockfile --no-optional
 node --test
+node scripts/build.mjs
 node scripts/preview.mjs
 ```
 
 표시된 `http://127.0.0.1:8780/`을 엽니다. 미리보기는 이 컴퓨터에서만 접근하며 파일을 바꾸었다면 다시 build하고 브라우저를 새로고침합니다. 이미 서버가 실행 중이면 동일 포트의 서버를 또 만들지 않습니다. 종료는 실행한 터미널에서 Ctrl+C입니다. 포트는 `PORT` 환경 변수로 변경할 수 있습니다.
+
+pnpm이 없다면 npm이 제공되는 Node 설치에서 `npx --yes pnpm@11.25.0 install --frozen-lockfile --no-optional`로 프로젝트 의존성만 설치할 수도 있습니다. 최초 설치에는 인터넷이 필요하고 실행·열람에 Python이나 ML 환경은 필요하지 않습니다.
+
+## 원문·번역 리딩 개발 상태
+
+- 승인된 시범: Azulay·Weiss(2019), JMLR 출판판. 첫 쪽의 CC BY 4.0 고지를 확인했습니다.
+- 목표 범위: Abstract부터 Discussion까지 본문, 원형 참고문헌. 부록과 외부 사진은 제외합니다.
+- **현재는 Abstract·Introduction·Figure 1 캡션 7개 대응 단위의 로컬 시범**입니다. 전체 번역이나 공개 배포 완료가 아닙니다.
+- 시범 확인: `node scripts/build.mjs --draft-reading` 후 `/readings/azulay-weiss-2019/index.html`을 엽니다. 일반 빌드는 `draft`를 내보내지 않으며 일반 빌드를 다시 하면 이전 시범 생성 페이지도 정리됩니다.
+- 개인 파일: `/local-reader/index.html`. PDF와 .txt/.json 번역을 브라우저 메모리에서만 열며 업로드·자동 번역·영구 저장·OCR은 없습니다. `.json`은 선택한 PDF의 SHA-256과 총쪽수가 일치해야 연결됩니다. 매번 파일을 다시 선택합니다.
+- 편집 형식·권리 게이트·검토 상태는 [READING-EDITING.md](READING-EDITING.md), 조사 근거는 [READING-RIGHTS.md](READING-RIGHTS.md)를 참조합니다.
 
 `dist/`는 다시 생성할 수 있는 정적 배포 결과입니다. Node가 없는 웹 서버에서도 이 폴더만 제공하면 열람할 수 있습니다. 소스 HTML을 직접 여는 방식보다 미리보기 서버를 사용하세요.
 
@@ -25,8 +37,9 @@ node scripts/preview.mjs
 - `content/catalog.json`: 논문 서지·목록·분석 상태
 - `content/papers/<id>.json`: 독립 작성한 분석 본문·출처·검토 범위
 - `content/questions.json`: 사용자가 승인한 ‘기계는 생각하는가?’ 한 개와 관련 절. 추가 질문은 직접 작성
+- `content/readings.json`, `content/readings/<id>.json`: 개별 권리·판본·안정적인 문단 ID·원문/번역/별도 해설
 - `src/`: 템플릿·스타일·읽기 기능·검증
-- `scripts/`: 외부 의존성 없는 빌드와 loopback 미리보기
+- `scripts/`: 정적 빌드, 고정 PDF 표시 자산 복사, loopback 미리보기
 - `tests/`: 데이터·질문 연결·경로·배포 자산 검사
 - `PROGRESS.md`: 실제 조사·구현·검증과 미완료 기록
 
@@ -67,7 +80,7 @@ JSON 문자열에 HTML을 넣어도 실행되지 않고 문자로 표시합니�
 
 ## 원문과 권리
 
-공식 원문 링크와 직접 작성한 분석만 제공합니다. 전사본의 오류·누락이나 읽지 못한 범위는 본문 말미에 표시합니다. 무료 열람 링크를 재배포 허가로 취급하지 않습니다. 글꼴 파일과 외부 이미지도 포함하지 않습니다.
+기존 세 논문은 공식 링크와 직접 작성한 분석을 제공합니다. 대조 읽기는 개별 재배포·번역 조건이 확인된 판본에 한합니다. 전사 오류·누락·미검토 범위를 표시하며 무료 열람을 재배포 허가로 취급하지 않습니다. PDF 표시를 위한 패키지 지원 글꼴 외에 외부 글꼴이나 사진을 포함하지 않습니다. PDF.js·지원 자산의 별도 고지는 [THIRD-PARTY.md](THIRD-PARTY.md)에 있습니다.
 
 라이선스 범위는 [LICENSE.md](LICENSE.md)를 참고합니다. 소프트웨어는 [MIT](LICENSE-MIT.txt), 자체 해설·질문·표/도식과 문서의 설명 글은 [CC BY 4.0](LICENSE-CONTENT.md)입니다. 원 논문과 외부 자료의 권리를 재허가하지 않습니다. 생성 결과에도 두 이용 안내가 포함됩니다. 포함·제외 자료와 원문 확인 기록은 [RIGHTS.md](RIGHTS.md)에 정리했습니다.
 

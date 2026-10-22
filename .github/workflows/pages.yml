@@ -25,6 +25,10 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22'
+      - name: Install the pinned PDF renderer (no optional native modules)
+        run: |
+          npm install --global pnpm@11.25.0
+          pnpm install --frozen-lockfile --no-optional
       - name: Test content, links and calculations
         run: node --test
       - name: Build static output

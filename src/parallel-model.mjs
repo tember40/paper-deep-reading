@@ -1,4 +1,4 @@
-// Content contract for the next reader. Not yet connected to public builds.
+// One content contract for rights-gated public readings and user-supplied local mappings.
 import {ID,httpsUrl} from './model.mjs';
 
 const requireText=(value,label)=>{
@@ -9,13 +9,16 @@ const requireId=(value,label)=>{
 };
 export const TRANSLATION_STATES=Object.freeze(['untranslated','machine-draft','source-checked','human-reviewed']);
 
-export function validateParallelReading(reading,{forPublication=false}={}){
+export function validateParallelReading(reading,{forPublication=false,localFile=false}={}){
+  if(!reading||typeof reading!=='object'||Array.isArray(reading))throw new Error('대응 번역은 JSON 객체여야 합니다');
   requireId(reading.id,'리딩');
   requireText(reading.title,'제목');
   const {source,coverage,sections,units,rights}=reading;
   requireText(source?.version,'원문 버전');
   requireText(source?.citation,'서지');
-  httpsUrl(source.url);
+  if(!localFile||source.url) httpsUrl(source.url);
+  if(localFile&&!/^[a-f0-9]{64}$/.test(source.pdfSha256||'')) throw new Error('개인 PDF의 SHA-256이 필요합니다');
+  if(source.pdfSha256!==undefined&&!/^[a-f0-9]{64}$/.test(source.pdfSha256)) throw new Error('PDF SHA-256 형식 오류');
   if(!Number.isInteger(source.pdfPageCount)||source.pdfPageCount<1) throw new Error('원문 PDF 총쪽수 오류');
   if(!coverage||!Array.isArray(coverage.excluded)) throw new Error('제공 범위/제외 범위 누락');
   requireText(coverage.description,'제공 범위');
@@ -51,15 +54,29 @@ export function validateParallelReading(reading,{forPublication=false}={}){
     if(!Number.isInteger(location?.pdfPageStart)||!Number.isInteger(location.pdfPageEnd)||location.pdfPageStart<1||location.pdfPageEnd<location.pdfPageStart||location.pdfPageEnd>source.pdfPageCount) throw new Error('PDF 쪽수 범위 오류');
     // PDF page numbers are one-based. Printed page labels are separate strings.
     requireText(location.printedPageStart,'인쇄 쪽번호');
+    if(location.printedPageEnd!==undefined)requireText(location.printedPageEnd,'인쇄 끝 쪽번호');
     requireText(location.label,'원문 위치 설명');
     if(!['paragraph','page'].includes(location.precision)) throw new Error('대응 정밀도 표시 오류');
     if(!Array.isArray(unit.notes)) throw new Error('해설은 번역과 별도 목록으로 보관합니다');
     unit.notes.forEach(note=>{
       if(note.author!=='analyst') throw new Error('해설 작성 주체 오류');
       requireText(note.text,'해설');
+      if(note.analysisLinks!==undefined){
+        if(!Array.isArray(note.analysisLinks))throw new Error('관련 분석 링크 오류');
+        for(const target of note.analysisLinks){requireId(target.paperId,'관련 논문');requireId(target.sectionId,'관련 분석 절');requireText(target.label,'분석 링크 설명');}
+      }
     });
   }
   if(actual.size!==expected.size) throw new Error('목차와 실제 원문 단위가 일치하지 않습니다');
+  if(reading.glossary!==undefined){
+    if(!Array.isArray(reading.glossary))throw new Error('용어 목록 오류');
+    const termIds=new Set();
+    for(const term of reading.glossary){
+      requireId(term.id,'용어');requireText(term.term,'용어 표기');requireText(term.definition,'용어 정의');
+      if(termIds.has(term.id))throw new Error('중복 용어 ID');termIds.add(term.id);
+      if(!Array.isArray(term.unitIds)||!term.unitIds.length||term.unitIds.some(id=>!actual.has(id))||new Set(term.unitIds).size!==term.unitIds.length)throw new Error('용어 등장 위치 오류');
+    }
+  }
   if(!rights||!['unverified','cleared'].includes(rights.status)) throw new Error('권리 확인 상태 누락');
   if(forPublication){
     if(rights.status!=='cleared'||rights.permissions?.redistributeOriginal!==true||rights.permissions?.publishTranslation!==true) throw new Error('원문 재배포와 번역 공개 권리를 먼저 확인해야 합니다');
@@ -71,6 +88,13 @@ export function validateParallelReading(reading,{forPublication=false}={}){
     if(units.some(unit=>['untranslated','machine-draft'].includes(unit.translationState))) throw new Error('공개 전에 원문 대조 검토가 필요합니다');
   }
   return true;
+}
+
+export function bindLocalReading(reading,{sha256,pageCount}){
+  validateParallelReading(reading,{localFile:true});
+  if(reading.source.pdfSha256!==sha256) throw new Error('번역 파일과 선택한 PDF의 SHA-256이 다릅니다');
+  if(reading.source.pdfPageCount!==pageCount) throw new Error('번역 파일과 선택한 PDF의 총쪽수가 다릅니다');
+  return reading;
 }
 
 export function parallelResumeTarget(reading,saved,hash=''){
