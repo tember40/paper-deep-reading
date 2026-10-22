@@ -2,7 +2,7 @@
 
 논문 원문을 대체하지 않고 주장·가정·근거·한계를 함께 읽는 정적 e북형 사이트입니다. 기존 Backbone Lab과 분리된 프로젝트이며 ML 패키지·데이터셋·DB·외부 API를 사용하지 않습니다.
 
-사용자가 확정한 로컬 프로젝트 위치는 `C:\Users\ryusy\Desktop\paper-deep-reading`입니다. 코드 MIT·자체 글/도식 CC BY 4.0과 초기 질문 한 개를2026-10-22 승인했습니다. GitHub 원격 생성·공개는 로컬 검토 후 별도 확인하며 이번에는 실행하지 않습니다. 원문 PDF·전문·전체 번역·논문 그림은 배포하지 않습니다.
+사용자가 확정한 로컬 프로젝트 위치는 `C:\Users\ryusy\Desktop\paper-deep-reading`입니다. 코드 MIT·자체 글/도식 CC BY 4.0과 초기 질문 한 개를 승인했습니다. 공개 저장소는 [tember40/paper-deep-reading](https://github.com/tember40/paper-deep-reading)이며 GitHub Pages 배포도 사용자에게 승인받았습니다. 원문 PDF·전문·전체 번역·논문 그림은 배포하지 않습니다.
 
 ## 실행
 
@@ -75,4 +75,4 @@ JSON 문자열에 HTML을 넣어도 실행되지 않고 문자로 표시합니�
 
 승인된 별도 저장소에서 `node scripts/build.mjs`로 생성한 `dist/`만 정적 호스팅에 올립니다. 모든 내부 자산은 상대 경로를 사용해 GitHub 프로젝트 Pages 하위 경로도 지원하도록 설계했습니다. 기존 ML 프로젝트의 원격을 대신 사용하지 않습니다.
 
-GitHub 원격 생성·Pages 공개는 아직 실행하거나 승인된 것으로 기록하지 않았습니다. 승인 후 절차와 실제 배포 검증 항목은 [DEPLOYMENT.md](DEPLOYMENT.md)를 참고합니다. 문서가 있다는 사실은 배포 성공이나 공개 승인을 의미하지 않습니다.
+`.github/workflows/pages.yml`이 main의 변경과 수동 실행에 대해 검사→빌드→Pages 배포를 수행합니다. 검사 실패 시 배포하지 않으며 `dist/`만 배포합니다. 공개 주소와 갱신 방법·검증 항목은 [DEPLOYMENT.md](DEPLOYMENT.md), 실제 결과는 [PROGRESS.md](PROGRESS.md)를 참고합니다.

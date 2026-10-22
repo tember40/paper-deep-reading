@@ -1,6 +1,6 @@
-# 정적 배포 안내 — 아직 미배포
+# GitHub Pages 배포 안내
 
-이 문서는 승인 후 절차입니다. 새 저장소 이름·위치·원격·공개 범위·프로젝트 라이선스를 먼저 확정합니다. 기존 Backbone 저장소에는 푸시하지 않습니다. 현재 GitHub 원격과 Pages는 생성하거나 변경하지 않았습니다.
+사용자가 새 저장소 업로드와 Pages 공개 배포를 승인했습니다. 대상은 **https://github.com/tember40/paper-deep-reading**이며 기존 Backbone 저장소에는 푸시하지 않습니다. 공개 주소는 **https://tember40.github.io/paper-deep-reading/**입니다. 배포 결과는 작업 기록과 GitHub Actions에서 확인합니다.
 
 ## 배포 전
 
@@ -14,7 +14,13 @@
 
 현재 구조는 빌드 결과 `dist/`를 Pages artifact로 배포하는 방식에 적합합니다. 승인된 **새 저장소**의 Settings → Pages에서 GitHub Actions를 선택하고, 저장소의 기본 브랜치에 맞는 워크플로를 작성합니다. 순서는 체크아웃 → Node20 이상 준비 → 검사 → 빌드 → configure-pages → upload-pages-artifact(`path: dist`) → deploy-pages입니다. 배포 작업에 필요한 pages:write·id-token:write와 github-pages 환경을 설정합니다. 처음에는 수동 실행으로 검증한 뒤 자동 실행 여부를 결정하세요.
 
-구체적인 action 버전·권한·환경 설정은 배포 시점의 [GitHub 공식 custom workflow 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)를 대조합니다(이 문서에서 확인한 날짜2026-10-21). 현재 승인 대기 중이므로 자동 배포 워크플로를 활성화하지 않았습니다.
+실제 워크플로는 `.github/workflows/pages.yml`입니다. Node22에서 외부 패키지 설치 없이 검사·빌드하고 별도 deploy 작업에만 Pages/OIDC 쓰기 권한을 줍니다. 공식 action 소스의 정확한 커밋을 고정했습니다. 업데이트 시 [GitHub 공식 custom workflow 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)를 대조합니다.
+
+## 이후 수정해서 올리기
+
+콘텐츠를 편집한 뒤 `node --test`로 확인하고 필요한 파일만 커밋합니다. `git remote -v`가 위 새 저장소를 가리키는지 확인한 뒤 `git push origin HEAD:main`으로 반영합니다. 기본 main에 올라간 변경은 자동 배포되며, 다른 작업 브랜치의 push는 공개 사이트를 바꾸지 않습니다. 협업으로 main이 바뀌었다면 먼저 원격 이력을 가져와 검토·통합하고 강제 push하지 않습니다.
+
+GitHub 저장소 Settings → Pages의 배포 방식은 GitHub Actions입니다. 다시 실행하려면 Actions의 `Test and deploy reading site`에서 수동 실행할 수 있습니다. 성공 여부는 최신 커밋의 build/deploy 작업과 실제 페이지를 함께 확인합니다.
 
 ## 일반 정적 서버
 

@@ -1,5 +1,11 @@
 # 논문 심층 읽기 — 작업 기록
 
+## 공개 배포 진행 · 사용자 추가 승인
+
+사용자가 https://github.com/tember40/paper-deep-reading 주소를 직접 제공하고 업로드·GitHub Pages 공개 배포를 승인했다. 아래의 ‘공개 보류’는 로컬 인수 시점 이력이다. 대상 저장소는Public·main 기본 브랜치이며 기존README 초기 커밋a1df80c를 보존해 통합한다. 기존Backbone 원격은 사용하지 않는다.
+
+`.github/workflows/pages.yml`에main push/수동실행·Node22·18검사·정적빌드·dist만배포를 추가했다. 외부 패키지 설치 없이 동작하며 공식action 버전을 실제원격태그로 확인하고SHA를고정했다. deploy작업에만Pages/OIDC쓰기권한이 있다. 실제 배포 성공 여부는 뒤의 검증 기록으로 구분한다.
+
 ## 현재 확정 상태 · 2026-10-22
 
 사용자가 이름·위치 `C:/Users/ryusy/Desktop/paper-deep-reading`, 코드 MIT·자체 글/도식 CC BY 4.0, 초기 질문 ‘기계는 생각하는가?’ 한 개를 승인했다. GitHub 생성·공개는 로컬 검토 후 별도 확인하기로 했으므로 이번 범위에서 실행하지 않는다. 아래2026-10-21의 임시 상태·선택 대기 기록은 당시 이력이며 현재 미확정 사항으로 해석하지 않는다.
