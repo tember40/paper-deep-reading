@@ -6,6 +6,19 @@
 
 `.github/workflows/pages.yml`에main push/수동실행·Node22·18검사·정적빌드·dist만배포를 추가했다. 외부 패키지 설치 없이 동작하며 공식action 버전을 실제원격태그로 확인하고SHA를고정했다. deploy작업에만Pages/OIDC쓰기권한이 있다. 실제 배포 성공 여부는 뒤의 검증 기록으로 구분한다.
 
+## 공개 배포 검증 결과
+
+- 저장소: https://github.com/tember40/paper-deep-reading (Public).
+- 공개 사이트: https://tember40.github.io/paper-deep-reading/ . GitHub Pages를workflow 방식으로 활성화했다.
+- 첫 배포 커밋: `384fed9453a6b04320e88e66339c8e2a11ba7efe`. GitHub 초기 커밋a1df80c의 이력을 보존하고 기존 제목은 확장된 README에 유지했다. 강제push 없음.
+- 실행: https://github.com/tember40/paper-deep-reading/actions/runs/39710309072 . 해당SHA의build·deploy·모든단계가success임을GitHub API로 확인했다. 로컬18검사와Linux CI검사 모두통과했다.
+- 실제공개주소에서홈·세논문·guide·rights를1280/820/390으로확인했다(18상태). 가로넘침없음·콘솔경고/오류없음·두라이선스링크표시. 모바일목차→사용자질문→Enter펼침·관련절이동 확인.
+- 직접#consciousness 링크의절top85px/헤더끝61px로가림없음. 다른논문진입scrollY0·Turing이어가기에서consciousness/H2초점복원·명시적#reframing진입은이어가기보다우선함을확인했다. viewport복원후기본홈을열었다.
+- 공개페이지/자산/라이선스13파일은모두HTTP200이며CRLF/LF정규화후SHA-256이로컬dist와일치했다. Windows체크아웃은7개텍스트자산/라이선스에CRLF, Linux빌드는LF를사용해원시바이트는달랐지만정규화후전체내용은같았다. 이를배포오류로처리하지않았다.
+- 추가deployments API확인은일시적인DNS조회실패로종료했다. 이미정확한실행SHA의배포성공과실제공개내용이확인되어재배포하지않았다.
+- 공개tracked파일과정적결과에원문PDF·스캔·임시.qa·외부폰트가없음을확인했다. 기존Backbone저장소는변경하지않았다. 인증은기존Git자격증명도구에서메모리로만읽었으며파일/명령인자/출력에저장하지않았다.
+- 이검증기록은문서만추가한다. 사이트본문·자산은첫검증커밋과같으며,기록push에따라새main커밋도동일워크플로를다시거친다. 최종실행결과는GitHub Actions의최신main실행을확인한다.
+
 ## 현재 확정 상태 · 2026-10-22
 
 사용자가 이름·위치 `C:/Users/ryusy/Desktop/paper-deep-reading`, 코드 MIT·자체 글/도식 CC BY 4.0, 초기 질문 ‘기계는 생각하는가?’ 한 개를 승인했다. GitHub 생성·공개는 로컬 검토 후 별도 확인하기로 했으므로 이번 범위에서 실행하지 않는다. 아래2026-10-21의 임시 상태·선택 대기 기록은 당시 이력이며 현재 미확정 사항으로 해석하지 않는다.
