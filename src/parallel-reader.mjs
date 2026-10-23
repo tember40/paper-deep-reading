@@ -1,89 +1,140 @@
 import {parallelResumeTarget} from './parallel-model.mjs';
+import {planBook,locateBookPage} from './book-model.mjs';
 
-document.body.dataset.enhanced='true';
-const layout=document.querySelector('.parallel-layout'),sync=document.querySelector('#parallel-sync'),status=document.querySelector('#parallel-status');
-const panes={original:document.querySelector('#original-scroll'),translation:document.querySelector('#translation-scroll')};
-const units={original:[...panes.original.querySelectorAll('[data-unit]')],translation:[...panes.translation.querySelectorAll('[data-unit]')]};
-const ids=units.original.map(node=>node.dataset.unit),version=document.body.dataset.sourceVersion;
+// A cached pre-book HTML page stays readable instead of failing during a rollout.
+if(document.querySelector('#book-pagination')){
+const $=selector=>document.querySelector(selector);
+const layout=$('.parallel-layout'),toc=$('#parallel-toc'),status=$('#parallel-status');
+const languages=['original','translation'];
+const panes=Object.fromEntries(languages.map(language=>[language,$(`#${language}-scroll`)]));
+const flows=Object.fromEntries(languages.map(language=>[language,panes[language].querySelector('.book-flow')]));
+const units=Object.fromEntries(languages.map(language=>[language,new Map([...flows[language].querySelectorAll('[data-unit]')].map(node=>[node.dataset.unit,node]))]));
+const sections=Object.fromEntries(languages.map(language=>[language,[...flows[language].children]]));
+const ids=[...units.original.keys()],version=document.body.dataset.sourceVersion;
 const reading={source:{version},units:ids.map(id=>({id}))};
 const key=`paper-deep-reading:parallel:v1:${document.body.dataset.readingId}`;
-let activeId=ids[0],locked=new Set(),frames=new Map();
-const mobile=matchMedia('(max-width:700px)'),toc=document.querySelector('#parallel-toc');
-const wide=matchMedia('(min-width:1101px)');
-wide.addEventListener('change',()=>{if(wide.matches)toc.open=true;});
-function selectLanguage(language){
-  layout.dataset.language=language;
-  for(const button of document.querySelectorAll('[data-language-button]'))button.setAttribute('aria-pressed',String(button.dataset.languageButton===language));
-}
-function setActive(id){
-  activeId=id;
-  for(const list of Object.values(units))for(const node of list)node.dataset.active=String(node.dataset.unit===id);
-  for(const a of toc.querySelectorAll('[data-goto]')){
-    const first=panes.original.querySelector(`[data-unit="${a.dataset.goto}"]`);
-    if(first?.closest('section')===panes.original.querySelector(`[data-unit="${id}"]`)?.closest('section'))a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');
+let saved;try{saved=JSON.parse(localStorage.getItem(key));}catch{saved=null;}
+const resumeId=parallelResumeTarget(reading,saved,location.hash);
+const compact=matchMedia('(max-width:1100px)');
+if(compact.matches)toc.open=false;
+compact.addEventListener('change',()=>{toc.open=!compact.matches;});
+let groups=[],current=0,activeId=ids[0],language='original',busy=false,resizeFrame=0;
+const notes=$('#book-notes-content'),noteSources=new Map();
+for(const id of ids)noteSources.set(id,[...units.translation.get(id).querySelectorAll(':scope > details')].map(node=>node.cloneNode(true)));
+
+function showUnits(selected){
+  const visible=new Set(selected);
+  for(const side of languages){
+    for(const [id,node] of units[side])node.hidden=!visible.has(id);
+    for(const section of sections[side]){
+      const members=[...section.querySelectorAll('[data-unit]')];
+      section.hidden=!members.some(node=>visible.has(node.dataset.unit));
+      section.querySelector('h2').hidden=!visible.has(members[0]?.dataset.unit);
+    }
+    flows[side].style.transform='none';flows[side].style.visibility='visible';flows[side].style.width='100%';
+    flows[side].style.columnCount='1';flows[side].style.columnFill='auto';panes[side].scrollLeft=0;
   }
-  try{localStorage.setItem(key,JSON.stringify({sourceVersion:version,unitId:id}));}catch{/* Storage denial cannot stop reading. */}
 }
-function align(language,id){
-  const pane=panes[language],node=units[language].find(node=>node.dataset.unit===id);if(!node)return;
-  locked.add(language);
-  pane.scrollTop+=node.getBoundingClientRect().top-pane.getBoundingClientRect().top-20;
-  requestAnimationFrame(()=>requestAnimationFrame(()=>locked.delete(language)));
+function columnCount(side){
+  const flow=flows[side];return Math.max(1,Math.ceil((flow.scrollWidth-2)/Math.max(1,flow.getBoundingClientRect().width)));
 }
-function go(id,{language=layout.dataset.language,focus=true,hash=true}={}){
-  if(!ids.includes(id))return;
-  selectLanguage(language);align('original',id);align('translation',id);setActive(id);
-  if(hash)history.replaceState(null,'',`#${language}-${id}`);
-  if(mobile.matches)toc.open=false;
-  const node=units[language].find(node=>node.dataset.unit===id);
-  if(focus)node?.focus({preventScroll:true});
-  status.textContent=`${ids.indexOf(id)+1}/${ids.length} · 대응 문단`;
+function measure(selected){showUnits(selected);return Object.fromEntries(languages.map(side=>[side,columnCount(side)]));}
+function visibleUnits(side,group){
+  const edge=panes[side].getBoundingClientRect();
+  return group.ids.filter(id=>[...units[side].get(id).getClientRects()].some(rect=>rect.right>edge.left+4&&rect.left<edge.right-4));
 }
-for(const [language,pane] of Object.entries(panes))pane.addEventListener('scroll',()=>{
-  if(locked.has(language)||frames.has(language))return;
-  frames.set(language,requestAnimationFrame(()=>{
-    frames.delete(language);
-    const top=pane.getBoundingClientRect().top;
-    const node=units[language].find(node=>node.getBoundingClientRect().bottom>top+40);if(!node||node.dataset.unit===activeId)return;
-    setActive(node.dataset.unit);
-    if(sync.checked)align(language==='original'?'translation':'original',activeId);
-    status.textContent=`${ids.indexOf(activeId)+1}/${ids.length} · 대응 문단`;
-  }));
-},{passive:true});
-for(const a of document.querySelectorAll('[data-goto]'))a.addEventListener('click',event=>{
-  if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
-  event.preventDefault();go(a.dataset.goto,{language:a.dataset.language||layout.dataset.language});
-  document.querySelector('.parallel-toolbar').scrollIntoView({block:'start'});
-});
-for(const button of document.querySelectorAll('[data-language-button]'))button.addEventListener('click',()=>{
-  selectLanguage(button.dataset.languageButton);align(button.dataset.languageButton,activeId);
-  document.querySelector('.parallel-toolbar').scrollIntoView({block:'start'});
-});
-sync.addEventListener('change',()=>{if(sync.checked){align('original',activeId);align('translation',activeId);}});
+function setLanguage(next){
+  language=next;layout.dataset.language=next;
+  for(const button of document.querySelectorAll('[data-language-button]'))button.setAttribute('aria-pressed',String(button.dataset.languageButton===next));
+}
+function remember(){
+  const state=locateBookPage(groups,current);
+  try{localStorage.setItem(key,JSON.stringify({sourceVersion:version,unitId:activeId,pagePart:state?.part||0}));}catch{/* Storage denial cannot stop reading. */}
+}
+function updateNotes(selected){
+  notes.replaceChildren();
+  for(const id of selected){
+    const section=document.createElement('section'),heading=document.createElement('h3');
+    heading.textContent=units.translation.get(id).querySelector('.unit-page').textContent;
+    section.append(heading,...noteSources.get(id).map(node=>node.cloneNode(true)));notes.append(section);
+  }
+  $('#book-notes-count').textContent=String(selected.length);
+}
+function render({anchor,save=true}={}){
+  const state=locateBookPage(groups,current);if(!state)return;
+  current=state.page;showUnits(state.group.ids);const selected=new Set();
+  for(const side of languages){
+    const width=panes[side].getBoundingClientRect().width;
+    // Balance a long paired unit over the SAME number of leaves in both languages.
+    // No sentence alignment is invented; all original text nodes remain intact.
+    flows[side].style.width=`${width*state.group.pages}px`;
+    flows[side].style.columnCount=String(state.group.pages);flows[side].style.columnFill='balance';
+    flows[side].style.transform=`translateX(${-state.part*width}px)`;
+    flows[side].inert=false;document.querySelector(`[data-ended="${side}"]`).hidden=true;
+    visibleUnits(side,state.group).forEach(id=>selected.add(id));
+    document.querySelector(`[data-folio="${side}"]`).textContent=`${current+1} / ${state.total}`;
+  }
+  activeId=anchor&&state.group.ids.includes(anchor)?anchor:[...selected][0]||state.group.ids[0];
+  const activeSection=units.original.get(activeId).closest('section');$('#book-section').textContent=activeSection.querySelector('h2').textContent;
+  $('#original-heading').nextElementSibling.textContent=units.original.get(activeId).querySelector('.unit-page').textContent;
+  for(const side of languages)for(const [id,node] of units[side])node.dataset.active=String(id===activeId);
+  for(const link of toc.querySelectorAll('[data-goto]')){
+    if(units.original.get(link.dataset.goto)?.closest('section')===activeSection)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current');
+  }
+  $('#book-previous').disabled=current===0;$('#book-next').disabled=current===state.total-1;
+  const input=$('#book-page');input.max=String(state.total);input.value=String(current+1);$('#book-total').textContent=`/ ${state.total}쪽`;
+  status.textContent=`리딩 ${current+1} / ${state.total}쪽${state.group.pages>1?` · 같은 문단 이어짐 ${state.part+1}/${state.group.pages}`:''}`;
+  updateNotes(selected.size?[...selected]:state.group.ids);if(save)remember();
+}
+function go(id,{side=language,part,focus=true,hash=true}={}){
+  const group=groups.find(group=>group.ids.includes(id));if(!group)return;
+  setLanguage(side);showUnits(group.ids);
+  const rect=units[side].get(id).getClientRects()[0],base=flows[side].getBoundingClientRect();
+  const first=rect?Math.max(0,Math.floor((rect.left-base.left+2)/base.width)):0;
+  current=group.start+Math.min(group.pages-1,Number.isInteger(part)?Math.max(0,part):first);render({anchor:id});
+  if(hash)history.replaceState(null,'',`#${side}-${id}`);if(compact.matches)toc.open=false;
+  if(focus)panes[side].focus({preventScroll:true});
+}
+function turn(delta){const previous=current;current+=delta;render();if(current!==previous)history.replaceState(null,'',`#${language}-${activeId}`);frameBook();}
+function frameBook(){
+  requestAnimationFrame(()=>{
+    const top=layout.getBoundingClientRect().top+scrollY-$('.masthead').getBoundingClientRect().height-$('.parallel-toolbar').getBoundingClientRect().height-12;
+    window.scrollTo({top:Math.max(0,top),behavior:'instant'});
+  });
+}
 function hashTarget(){
   let hash;try{hash=decodeURIComponent(location.hash.slice(1));}catch{return false;}
-  for(const language of ['original','translation'])if(hash.startsWith(`${language}-`)){
-    const id=hash.slice(language.length+1);if(ids.includes(id)){
-      go(id,{language,hash:false});
-      // The browser's native fragment scroll can put the first formula line under the sticky tools.
-      document.querySelector('.parallel-toolbar').scrollIntoView({block:'start'});
-      return true;
-    }
-  }
+  for(const side of languages)if(hash.startsWith(`${side}-`)&&ids.includes(hash.slice(side.length+1))){go(hash.slice(side.length+1),{side,hash:false});frameBook();return true;}
   return false;
 }
-let saved;try{saved=JSON.parse(localStorage.getItem(key));}catch{saved=null;}
-const resume=document.querySelector('#parallel-resume'),target=parallelResumeTarget(reading,saved,location.hash);
-if(target){resume.hidden=false;resume.addEventListener('click',()=>{go(target);resume.hidden=true;document.querySelector('.parallel-toolbar').scrollIntoView({block:'start'});});}
-if(location.hash)requestAnimationFrame(()=>{hashTarget();});
-addEventListener('hashchange',hashTarget);
-mobile.addEventListener('change',()=>{align('original',activeId);align('translation',activeId);});
-// Column width changes reflow long paragraphs even without crossing the mobile breakpoint.
-// Keep the checked pairing at the same unit; never ratio-sync independently read columns.
-let resizeFrame=0;
-addEventListener('resize',()=>{
-  if(!sync.checked&&!mobile.matches)return;
-  const id=activeId;
-  cancelAnimationFrame(resizeFrame);
-  resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;align('original',id);align('translation',id);setActive(id);});
+function repaginate({initial=false}={}){
+  if(busy)return;busy=true;const anchor=activeId,part=locateBookPage(groups,current)?.part||0;
+  document.body.dataset.paginating='true';groups=planBook(ids,measure);
+  if(initial){current=0;render({save:false});if(location.hash)hashTarget();}else go(anchor,{part,focus:false,hash:false});
+  document.body.dataset.paginating='false';busy=false;
+}
+document.addEventListener('click',event=>{
+  const link=event.target.closest('a[data-goto]');if(!link||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+  event.preventDefault();go(link.dataset.goto,{side:link.dataset.language||language});frameBook();
 });
+$('#book-previous').addEventListener('click',()=>turn(-1));$('#book-next').addEventListener('click',()=>turn(1));
+$('#book-jump').addEventListener('submit',event=>{event.preventDefault();current=Number($('#book-page').value)-1;render();history.replaceState(null,'',`#${language}-${activeId}`);frameBook();});
+$('#book-start').addEventListener('click',()=>{if(compact.matches)toc.open=false;frameBook();panes[language].focus({preventScroll:true});});
+for(const button of document.querySelectorAll('[data-language-button]'))button.addEventListener('click',()=>{setLanguage(button.dataset.languageButton);render({anchor:activeId});frameBook();});
+document.addEventListener('keydown',event=>{
+  if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||event.target.closest('input,select,textarea,[contenteditable="true"]'))return;
+  if(['ArrowLeft','ArrowRight'].includes(event.key)&&event.target.closest('.parallel-table,.parallel-math,.parallel-equation'))return;
+  const delta={ArrowLeft:-1,PageUp:-1,ArrowRight:1,PageDown:1}[event.key];if(delta){event.preventDefault();turn(delta);}
+});
+for(const side of languages)flows[side].addEventListener('focusin',event=>{
+  if(busy||event.target.matches('[data-unit]'))return;
+  const flow=flows[side],rect=event.target.getBoundingClientRect(),base=flow.getBoundingClientRect(),state=locateBookPage(groups,current);
+  const part=Math.max(0,Math.floor((rect.left-base.left+2)/panes[side].getBoundingClientRect().width));
+  if(state&&part!==state.part&&part<state.group.pages){current=state.group.start+part;render();}panes[side].scrollLeft=0;
+});
+addEventListener('hashchange',hashTarget);
+addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>repaginate());});
+$('#parallel-resume').hidden=!resumeId;
+if(resumeId)$('#parallel-resume').addEventListener('click',()=>{go(resumeId,{part:Number.isInteger(saved.pagePart)?saved.pagePart:0});$('#parallel-resume').hidden=true;frameBook();});
+document.body.dataset.enhanced='true';await document.fonts.ready;repaginate({initial:true});$('#book-pagination').hidden=false;
+}

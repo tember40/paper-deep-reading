@@ -132,8 +132,11 @@ test('every generated local link and fragment exists; links work under a project
       const href=match[1];
       if (href.startsWith('https://')) continue;
       assert.ok(!href.startsWith('/'),`absolute path breaks GitHub project Pages: ${href}`);
-      const [relative,fragment]=href.split('#');
-      const target=relative?path.resolve(path.dirname(file),relative):file;
+      const resolved=new URL(href,`https://reading-test.invalid/project/${path.relative(dist,file).replaceAll('\\','/')}`);
+      assert.equal(resolved.origin,'https://reading-test.invalid');
+      assert.ok(resolved.pathname.startsWith('/project/'),`path escapes project Pages: ${href}`);
+      const target=path.resolve(dist,decodeURIComponent(resolved.pathname.slice('/project/'.length)));
+      const fragment=decodeURIComponent(resolved.hash.slice(1));
       assert.ok(generated.includes(target),`missing ${href} from ${file}`);
       if (fragment) assert.ok(pages.get(target)?.includes(`id="${fragment}"`),`missing fragment ${href}`);
     }

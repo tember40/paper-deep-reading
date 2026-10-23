@@ -55,7 +55,7 @@ export async function build({includeDraft=false}={}) {
     outputs.set(`readings/${entry.id}/index.html`,parallelPage(entry,reading,{draft:entry.status!=='ready',figures}));
     for(const item of figures.values())outputs.set(`assets/papers/${entry.id}/${item.file}`,item.svg);
   }
-  for (const asset of ['styles.css','reader.mjs','favicon.svg','model.mjs','calculations.mjs','parallel-model.mjs','local-reader.mjs','local-reader.css','parallel-reader.mjs','parallel-reader.css']) outputs.set(`assets/${asset}`,await readFile(path.join(root,'src',asset)));
+  for (const asset of ['styles.css','reader.mjs','favicon.svg','model.mjs','calculations.mjs','parallel-model.mjs','book-model.mjs','local-reader.mjs','local-reader.css','parallel-reader.mjs','parallel-reader.css']) outputs.set(`assets/${asset}`,await readFile(path.join(root,'src',asset)));
   for(const [name,value] of await pdfAssets(root))outputs.set(name,value);
   if (catalog.licenseStatus==='approved') {
     outputs.set('licenses/MIT.txt',await readFile(path.join(root,'LICENSE-MIT.txt')));
