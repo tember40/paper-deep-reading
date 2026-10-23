@@ -1,0 +1,45 @@
+.bookshop-page{width:min(1240px,100% - 96px);margin:auto;padding:45px 0 60px}
+.bookshop-intro{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:40px}
+.bookshop-intro .eyebrow{font-family:var(--serif);font-size:12px;letter-spacing:.17em;margin-bottom:10px}
+.bookshop-intro h1{font-size:40px;letter-spacing:-.06em;font-weight:500;margin:0;line-height:1.3}
+.bookshop-intro>p{font-size:15px;color:var(--muted);line-height:1.9;margin:0}
+.shelf-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.shelf-heading h2{font-size:17px;font-weight:600;margin:0}.shelf-heading>span{font-size:12px;color:var(--muted)}
+.featured-edition{display:grid;grid-template-columns:260px minmax(0,1fr);gap:clamp(35px,6vw,90px);align-items:center;padding:40px 7% 46px;background:linear-gradient(110deg,#eee7df66,transparent 75%);margin-bottom:42px;border-bottom:1px solid var(--line)}
+.cover-link{display:block;text-decoration:none;color:inherit;max-width:100%;width:100%}
+.paper-cover{aspect-ratio:2/3;display:flex;flex-direction:column;position:relative;padding:26px 23px 22px 28px;border-radius:1px 3px 3px 1px;border:1px solid #00000014;background:#eee7da;color:#3e3430;box-shadow:8px 10px 16px #3020191c,2px 2px 2px #30201922;transition:transform .2s ease,box-shadow .2s ease;overflow:hidden}
+.paper-cover::before{content:'';position:absolute;inset:0 auto 0 9px;width:4px;border-left:1px solid #ffffff38;border-right:1px solid #00000015}
+.paper-cover::after{content:'';position:absolute;inset:8px 4px 8px auto;width:2px;background:#ffffff33}
+.cover-link:hover .paper-cover,.cover-link:focus-visible .paper-cover{transform:translateY(-5px) rotate(-.4deg);box-shadow:10px 16px 22px #30201926}
+.cover-format{font-family:var(--serif);font-size:10px;letter-spacing:.13em;line-height:1.5;border-bottom:1px solid currentColor;padding-bottom:13px;opacity:.75}
+.paper-cover>strong{font-family:var(--serif);font-weight:400;font-size:25px;line-height:1.18;word-break:normal;overflow-wrap:normal;margin:25px 0 18px}
+.cover-author{font-family:var(--serif);font-size:13px;line-height:1.4;word-break:normal;overflow-wrap:normal}
+.cover-bottom{display:flex;justify-content:space-between;gap:12px;font-family:var(--serif);font-size:11px;letter-spacing:.06em;border-top:1px solid currentColor;padding-top:12px;margin-top:auto;opacity:.75}
+.cover-burgundy{background:#701c30;color:#fff6e5}.cover-slate{background:#33454b;color:#f3eee3}.cover-ochre{background:#baa17d;color:#292621}.cover-ivory{background:#e9e0ce;color:#492e31}
+.edition-copy{min-width:0;max-width:630px}.edition-copy .eyebrow{font-size:12px;margin-bottom:12px}
+.edition-copy h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,2.8vw,35px);line-height:1.2;margin:0 0 15px;word-break:normal;overflow-wrap:normal}
+.edition-copy h2 a{color:var(--ink);text-decoration:none}.edition-copy h2 a:hover{color:var(--burgundy)}
+.edition-korean{font-size:17px;margin:0 0 8px}.edition-author{font-family:var(--serif);font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:17px}
+.edition-description{font-size:14px;line-height:1.9;max-width:47ch;color:var(--muted);margin-bottom:24px}
+.edition-actions{display:flex;align-items:center;gap:15px;flex-wrap:wrap;font-size:13px}.edition-actions>a{text-decoration:none}
+.edition-actions .primary-reading{background:var(--burgundy);color:var(--paper);padding:10px 22px;transition:background .15s}.edition-actions .primary-reading:hover{background:var(--burgundy-dark)}
+.edition-actions .primary-reading span{padding-left:20px}.edition-scope{font-size:12px;color:var(--muted);margin-top:18px}.edition-scope summary{cursor:pointer}.edition-scope p{margin-top:10px}
+.shelf-boundary{font-size:12px;color:var(--muted);margin:13px 0 30px;max-width:75ch}
+.book-shelf{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(28px,5vw,75px);margin:0;padding:5px 25px 35px;border-bottom:1px solid var(--line)}
+.shelf-book{min-width:0}.shelf-book>.cover-link,.shelf-book>.paper-cover{width:min(100%,228px);margin:0 auto}
+.shelf-book .paper-cover>strong{font-size:23px}.shelf-book .cover-author{font-size:12px}
+.shelf-caption{max-width:280px;margin:25px auto 0}.shelf-year{font-family:var(--serif);font-size:14px;color:var(--burgundy);margin-bottom:8px}
+.shelf-caption h3{font-family:var(--serif);font-size:23px;font-weight:400;line-height:1.3;margin-bottom:10px;word-break:normal;overflow-wrap:normal}.shelf-caption h3 a{color:var(--ink);text-decoration:none}.shelf-caption h3 a:hover{color:var(--burgundy)}
+.shelf-author{font-family:var(--serif);font-size:15px;line-height:1.5;color:var(--muted);margin-bottom:14px}.original-link{font-size:13px;text-decoration:none}
+.optional-analysis{font-size:13px;margin-top:14px;color:var(--muted)}.optional-analysis>summary{font-size:12px;cursor:pointer}.optional-analysis p{margin:12px 0}.optional-analysis>a{font-size:13px}.optional-analysis .entry-scope{margin:15px 0 0;font-size:12px;padding-left:12px}.optional-analysis .entry-scope summary{font-size:12px}
+.question-drawer{padding:20px 0;border-bottom:1px solid var(--line);font-size:14px}.question-drawer>summary{cursor:pointer}.bookshop-page .home-questions{margin-top:24px}.bookshop-page .home-questions h2{font-size:20px}.bookshop-page .home-questions h3{font-size:18px}.bookshop-page .home-questions ul{font-size:14px}
+.library-tools{display:flex;justify-content:space-between;align-items:center;gap:25px;padding:26px 0}.library-tools h2{font-size:16px;font-weight:500;margin:0 0 6px}.library-tools p{font-size:12px;color:var(--muted);margin:0}.library-tools>a{white-space:nowrap;font-size:13px}
+.shelf-colophon{font-size:11px;color:var(--muted);margin:25px 0 0}
+@media(min-width:1500px){.featured-edition{grid-template-columns:285px minmax(0,1fr)}.featured-edition .paper-cover>strong{font-size:29px}}
+@media(max-width:900px){.bookshop-page{width:calc(100% - 48px);padding-top:30px}.featured-edition{padding:30px 18px 35px;gap:35px;grid-template-columns:220px minmax(0,1fr)}.featured-edition .paper-cover>strong{font-size:23px}.book-shelf{gap:25px;padding-inline:0}.shelf-book .paper-cover{padding:20px 17px 17px 23px}.shelf-book .paper-cover>strong{font-size:20px;margin-top:18px}.shelf-book .cover-author{font-size:11px}.shelf-caption h3{font-size:21px}.cover-format{font-size:9px}.cover-bottom{font-size:9px}}
+@media(max-width:650px){.bookshop-intro{align-items:start;flex-direction:column;gap:14px;margin-bottom:28px}.bookshop-intro h1{font-size:33px}.bookshop-intro>p{font-size:14px}.featured-edition{grid-template-columns:1fr;gap:30px;padding:28px 15px 30px}.featured-edition>.cover-link{width:230px;margin:auto}.featured-edition .paper-cover>strong{font-size:25px}.edition-copy h2{font-size:28px}.edition-copy{max-width:100%}.edition-korean{font-size:16px}.edition-description{font-size:14px}.shelf-heading h2{font-size:15px}.shelf-heading>span{font-size:11px}.book-shelf{grid-template-columns:1fr;gap:38px}.shelf-book{display:grid;grid-template-columns:140px minmax(0,1fr);align-items:start;gap:22px}.shelf-book .paper-cover{padding:15px 12px 13px 18px}.shelf-book .paper-cover>strong{font-size:16px;margin:14px 0 10px}.shelf-book .cover-author{font-size:9px}.shelf-book .cover-format{font-size:7px;padding-bottom:9px}.shelf-book .cover-bottom{font-size:7px;gap:5px;padding-top:8px}.shelf-caption{margin:0;max-width:none}.shelf-caption h3{font-size:20px}.shelf-author{font-size:13px}.shelf-year{font-size:12px}.library-tools{align-items:start;flex-direction:column;gap:14px}}
+@media(max-width:370px){.bookshop-page{width:calc(100% - 32px)}.shelf-book{grid-template-columns:115px minmax(0,1fr);gap:16px}.shelf-book .paper-cover>strong{font-size:14px}.shelf-book .cover-author{font-size:8px}.shelf-caption h3{font-size:18px}}
+@media(max-width:900px){.featured-edition .paper-cover{padding:22px 22px 20px 28px;min-height:350px}.featured-edition .paper-cover>strong{font-size:23px;margin:20px 0 12px}}
+@media(max-width:650px){.shelf-book .cover-author{display:none}}
+@media(max-width:370px){.shelf-book .paper-cover{padding:12px 10px 10px 17px}.shelf-book .paper-cover>strong{font-size:13px;line-height:1.15;margin:10px 0 8px}}
+@media(prefers-reduced-motion:reduce){.paper-cover{transition:none}.cover-link:hover .paper-cover,.cover-link:focus-visible .paper-cover{transform:none}}

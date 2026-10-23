@@ -8,6 +8,8 @@ const allowedName=name=>[
   /^(index|guide|rights)\.html$/.test(name),
   /^licenses\/(MIT|CONTENT|THIRD-PARTY)\.txt$/.test(name),
   /^(papers|readings)\/[a-z][a-z0-9-]*\/index\.html$/.test(name),
+  /^readings\/[a-z][a-z0-9-]*\/references\.html$/.test(name),
+  name==='assets/library.css',
   /^assets\/(styles\.css|reader\.mjs|model\.mjs|calculations\.mjs|favicon\.svg|parallel-model\.mjs|book-model\.mjs|local-reader\.(mjs|css)|parallel-reader\.(mjs|css))$/.test(name),
   /^assets\/papers\/azulay-weiss-2019\/figure-(01|02|04|05|06|08|09|10|11)\.svg$/.test(name),
   /^assets\/vendor\/pdfjs\/(LICENSE\.txt|build\/pdf(?:\.worker)?\.min\.mjs|web\/pdf_viewer\.css|(cmaps|standard_fonts|wasm|iccs)\/[A-Za-z0-9][A-Za-z0-9_.-]*)$/.test(name)&&!name.includes('/quickjs-')

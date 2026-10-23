@@ -5,6 +5,7 @@ import path from 'node:path';
 import {root,loadReadings,loadLibrary} from '../scripts/build.mjs';
 import {validateParallelReading,bindLocalReading} from '../src/parallel-model.mjs';
 import {parallelPage} from '../src/parallel-page.mjs';
+import {referencesPage} from '../src/references-page.mjs';
 import {localReaderPage} from '../src/local-page.mjs';
 import {pdfAssets} from '../scripts/pdf-assets.mjs';
 import {paperPage} from '../src/render.mjs';
@@ -34,11 +35,12 @@ test('the actual introduction contains both page-crossing paragraphs and an hone
 });
 test('each actual paragraph has a pair of stable fragments, a source page and separated analysis',()=>{
   const html=parallelPage(draft.entry,draft.reading,{draft:true,figures:draft.figures});
+  const references=referencesPage(draft.entry,draft.reading);
   const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(match=>match[1]);
   assert.equal(ids.length,new Set(ids).size);
   for(const unit of draft.reading.units){
     for(const side of ['original','translation'])assert.ok(ids.includes(`${side}-${unit.id}`));
-    assert.ok(html.includes(`19-519.pdf#page=${unit.location.pdfPageStart}`));
+    assert.ok((unit.kind==='reference'?references:html).includes(`19-519.pdf#page=${unit.location.pdfPageStart}`));
   }
   assert.ok(html.includes('사람 검수를 받은 번역이 아닙니다'));
   assert.ok(html.includes('해설 · 분석자가 덧붙인 설명'));

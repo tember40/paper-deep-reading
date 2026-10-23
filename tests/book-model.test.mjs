@@ -36,6 +36,6 @@ test('actual book markup preserves every original/translation unit and exposes a
  for(const unit of reading.units)for(const side of ['original','translation'])assert.ok(html.includes(`id="${side}-${unit.id}"`));
  assert.equal((html.match(/class="book-flow"/g)||[]).length,2);
  assert.equal((html.match(/<img /g)||[]).length,18);
- assert.ok(html.includes('parallel-reader.css?v=book-pages-1'));
- assert.ok(html.includes('parallel-reader.mjs?v=book-pages-1'));
+ assert.ok(html.includes('parallel-reader.css?v=paper-shelf-2'));
+ assert.ok(html.includes('parallel-reader.mjs?v=paper-shelf-2'));
 });
